@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function Register() {
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: "", email: "", password: "", password2: "" });
+  const [formData, setFormData] = useState({ username: "", email: "", password: "", password2: "" });
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState("");
 
@@ -15,10 +15,10 @@ export default function Register() {
     if (form.checkValidity() === false) {
       e.stopPropagation();
     } else {
-      if (form.password.value !== form.password2.value) {
+      if (formData.password !== formData.password2) {
         return setError("Passwords do not match");
       }
-      await register(form.username.value, form.email.value, form.password.value);
+      await register(formData.username, formData.email, formData.password);
       navigate("/todo");
     }
     setValidated(true);
@@ -45,7 +45,7 @@ export default function Register() {
                             id="form3Example1c"
                             className="form-control"
                             placeholder="Your Name"
-                            onChange={(e) => setForm({ ...form, username: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                           />
                           <div className="invalid-feedback">Please enter your name.</div>
                         </div>
@@ -59,7 +59,7 @@ export default function Register() {
                             id="form3Example3c"
                             className="form-control"
                             placeholder="Your Email"
-                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           />
                           <div className="invalid-feedback">Please enter a valid email.</div>
                         </div>
@@ -74,7 +74,7 @@ export default function Register() {
                             className="form-control"
                             placeholder="Password"
                             pattern=".{6,}"
-                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           />
                           <div className="invalid-feedback">Password must be at least 6 characters long.</div>
                         </div>
@@ -88,7 +88,7 @@ export default function Register() {
                             id="form3Example4cd"
                             className="form-control"
                             placeholder="Repeat your password"
-                            onChange={(e) => setForm({ ...form, password2: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, password2: e.target.value })}
                           />
                            <div className="invalid-feedback">Please repeat your password.</div>
                         </div>

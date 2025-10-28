@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function Login() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [validated, setValidated] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -14,7 +14,7 @@ export default function Login() {
     if (form.checkValidity() === false) {
       e.stopPropagation();
     } else {
-      await login(form.email.value, form.password.value);
+      await login(formData.email, formData.password);
       navigate("/todo");
     }
     setValidated(true);
@@ -40,7 +40,7 @@ export default function Login() {
                             id="form3Example3c"
                             className="form-control"
                             placeholder="Your Email"
-                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           />
                           <div className="invalid-feedback">Please enter a valid email.</div>
                         </div>
@@ -54,7 +54,7 @@ export default function Login() {
                             id="form3Example4c"
                             className="form-control"
                             placeholder="Password"
-                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           />
                           <div className="invalid-feedback">Please enter your password.</div>
                         </div>
