@@ -76,11 +76,7 @@ export default function Todo() {
                         {todo.title}
                         <br />
                         <small className="text-muted">
-                          Created: {new Date(todo.createdAt).toLocaleString()}
-                        </small>
-                        <br />
-                        <small className="text-muted">
-                          Modified: {new Date(todo.updatedAt).toLocaleString()}
+                          Created: {new Date(todo.createdAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' and')}
                         </small>
                       </label>
                     </div>
