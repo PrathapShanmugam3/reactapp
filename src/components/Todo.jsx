@@ -9,7 +9,8 @@ export default function Todo() {
 
   const fetchTodos = async () => {
     const res = await API.get("/todos");
-    setTodos(res.data);
+    const sortedTodos = res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    setTodos(sortedTodos);
   };
 
   const addTodo = async (e) => {
@@ -73,6 +74,14 @@ export default function Todo() {
                         htmlFor={`todo-${todo._id}`}
                       >
                         {todo.title}
+                        <br />
+                        <small className="text-muted">
+                          Created: {new Date(todo.createdAt).toLocaleString()}
+                        </small>
+                        <br />
+                        <small className="text-muted">
+                          Modified: {new Date(todo.updatedAt).toLocaleString()}
+                        </small>
                       </label>
                     </div>
                     <button
