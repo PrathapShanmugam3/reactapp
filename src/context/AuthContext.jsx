@@ -26,10 +26,19 @@ export default function AuthProvider({ children }) {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      // Send token to backend
-      const res = await API.post("/auth/google-login", { idToken });
+      // Construct payload to send to backend
+      const payload = {
+        email: result.user.email,
+        username: result.user.displayName,
+        password: "GOOGLE_AUTH_USER", // Special identifier for Google authenticated users
+        idToken: idToken, // For backend verification
+      };
+
+      // Send payload to backend
+      const res = await API.post("/auth/google-login", payload);
       localStorage.setItem("token", res.data.token);
       setUser(res.data.user);
+
       Swal.fire({
         title: "Success!",
         text: "You have been logged in successfully.",
