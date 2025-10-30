@@ -12,9 +12,10 @@ export default function Register() {
   const handleSubmit = async (e) => {
     const form = e.currentTarget;
     e.preventDefault();
-    if (form.checkValidity() === false) {
-      e.stopPropagation();
-    } else {
+    e.stopPropagation();
+    setValidated(true);
+
+    if (form.checkValidity() === true) {
       if (formData.password !== formData.password2) {
         return Swal.fire({
           title: "Error!",
@@ -24,27 +25,11 @@ export default function Register() {
           showConfirmButton: false,
         });
       }
-      try {
-        await register(formData.username, formData.email, formData.password);
-        Swal.fire({
-          title: "Success!",
-          text: "You have been registered successfully.",
-          icon: "success",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+      const success = await register(formData.username, formData.email, formData.password);
+      if (success) {
         navigate("/todo");
-      } catch (error) {
-        Swal.fire({
-          title: "Error!",
-          text: "Registration failed. Please try again.",
-          icon: "error",
-          timer: 2000,
-          showConfirmButton: false,
-        });
       }
     }
-    setValidated(true);
   };
 
   const handleGoogleSignIn = async () => {

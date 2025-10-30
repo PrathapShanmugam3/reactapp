@@ -10,15 +10,53 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   const login = async (email, password) => {
-    const res = await API.post("/auth/login", { email, password });
-    localStorage.setItem("token", res.data.token);
-    setUser(res.data.user);
+    try {
+      const res = await API.post("/auth/login", { email, password });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      Swal.fire({
+        title: "Success!",
+        text: "You have been logged in successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return true;
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.error || "Invalid credentials. Please try again.",
+        icon: "error",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return false;
+    }
   };
 
   const register = async (username, email, password) => {
-    const res = await API.post("/auth/register", { username, email, password });
-    localStorage.setItem("token", res.data.token);
-    setUser(res.data.user);
+    try {
+      const res = await API.post("/auth/register", { username, email, password });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      Swal.fire({
+        title: "Success!",
+        text: "You have been registered successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return true;
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.error || "Registration failed. Please try again.",
+        icon: "error",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      return false;
+    }
   };
 
   const googleSignIn = async () => {
@@ -26,15 +64,13 @@ export default function AuthProvider({ children }) {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      // Construct payload to send to backend
       const payload = {
         email: result.user.email,
         username: result.user.displayName,
-        password: "GOOGLE_AUTH_USER", // Special identifier for Google authenticated users
-        idToken: idToken, // For backend verification
+        password: "GOOGLE_AUTH_USER",
+        idToken: idToken,
       };
 
-      // Send payload to backend
       const res = await API.post("/auth/google-login", payload);
       localStorage.setItem("token", res.data.token);
       setUser(res.data.user);
@@ -48,11 +84,16 @@ export default function AuthProvider({ children }) {
       });
     } catch (error) {
       console.error("Google login failed:", error);
+      let errorMessage = "Google login failed. Please try again.";
+      if (error.response && error.response.data && error.response.data.error === "User already exists") {
+        errorMessage = "An account with this email already exists. Please sign in using your original method.";
+      }
+
       Swal.fire({
-        title: "Error!",
-        text: "Google login failed. Please try again.",
+        title: "Authentication Failed",
+        text: errorMessage,
         icon: "error",
-        timer: 2000,
+        timer: 3000,
         showConfirmButton: false,
       });
     }
@@ -70,7 +111,6 @@ export default function AuthProvider({ children }) {
         const res = await API.get("/auth/me");
         setUser(res.data);
       } catch (error) {
-        // If the token is invalid, remove it.
         localStorage.removeItem("token");
         setUser(null);
       }
