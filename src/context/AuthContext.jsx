@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import API from "../api/axios";
+import { auth, googleProvider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
 
 export const AuthContext = createContext();
 
@@ -16,6 +18,18 @@ export default function AuthProvider({ children }) {
     const res = await API.post("/auth/register", { username, email, password });
     localStorage.setItem("token", res.data.token);
     setUser(res.data.user);
+  };
+
+  const googleSignIn = async () => {
+    const result = await signInWithPopup(auth, googleProvider);
+    // You can now access the user's information from the result object
+    // For example, you can get the user's name and email like this:
+    // const name = result.user.displayName;
+    // const email = result.user.email;
+    // You can also get an access token to make requests to Google APIs:
+    // const credential = GoogleAuthProvider.credentialFromResult(result);
+    // const token = credential.accessToken;
+    setUser(result.user);
   };
 
   const logout = () => {
@@ -36,7 +50,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, googleSignIn, logout }}>
       {children}
     </AuthContext.Provider>
   );
