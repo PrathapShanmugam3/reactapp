@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import API from "../api/axios";
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
+import Swal from "sweetalert2";
 
 export const AuthContext = createContext();
 
@@ -29,10 +30,22 @@ export default function AuthProvider({ children }) {
       const res = await API.post("/auth/google-login", { idToken });
       localStorage.setItem("token", res.data.token);
       setUser(res.data.user);
-      alert("Login success!");
+      Swal.fire({
+        title: "Success!",
+        text: "You have been logged in successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error("Google login failed:", error);
-      alert("Google login failed. Please try again.");
+      Swal.fire({
+        title: "Error!",
+        text: "Google login failed. Please try again.",
+        icon: "error",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     }
   };
 

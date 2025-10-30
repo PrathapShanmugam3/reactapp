@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const { login, googleSignIn } = useContext(AuthContext);
@@ -14,8 +15,25 @@ export default function Login() {
     if (form.checkValidity() === false) {
       e.stopPropagation();
     } else {
-      await login(formData.email, formData.password);
-      navigate("/todo");
+      try {
+        await login(formData.email, formData.password);
+        Swal.fire({
+          title: "Success!",
+          text: "You have been logged in successfully.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        navigate("/todo");
+      } catch (error) {
+        Swal.fire({
+          title: "Error!",
+          text: "Invalid credentials. Please try again.",
+          icon: "error",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
     }
     setValidated(true);
   };

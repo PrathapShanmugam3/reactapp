@@ -1,13 +1,13 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Register() {
   const { register, googleSignIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: "", email: "", password: "", password2: "" });
   const [validated, setValidated] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     const form = e.currentTarget;
@@ -16,10 +16,33 @@ export default function Register() {
       e.stopPropagation();
     } else {
       if (formData.password !== formData.password2) {
-        return setError("Passwords do not match");
+        return Swal.fire({
+          title: "Error!",
+          text: "Passwords do not match.",
+          icon: "error",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
-      await register(formData.username, formData.email, formData.password);
-      navigate("/todo");
+      try {
+        await register(formData.username, formData.email, formData.password);
+        Swal.fire({
+          title: "Success!",
+          text: "You have been registered successfully.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        navigate("/todo");
+      } catch (error) {
+        Swal.fire({
+          title: "Error!",
+          text: "Registration failed. Please try again.",
+          icon: "error",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
     }
     setValidated(true);
   };
@@ -39,7 +62,6 @@ export default function Register() {
                 <div className="row justify-content-center">
                   <div className="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
                     <p className="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
-                    {error && <p className="text-danger text-center">{error}</p>}
                     <form noValidate onSubmit={handleSubmit} className={`mx-1 mx-md-4 needs-validation ${validated ? "was-validated" : ""}`}>
                       <div className="d-flex flex-row align-items-center mb-4">
                         <i className="fas fa-user fa-lg me-3 fa-fw"></i>
