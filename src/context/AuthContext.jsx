@@ -21,15 +21,19 @@ export default function AuthProvider({ children }) {
   };
 
   const googleSignIn = async () => {
-    const result = await signInWithPopup(auth, googleProvider);
-    // You can now access the user's information from the result object
-    // For example, you can get the user's name and email like this:
-    // const name = result.user.displayName;
-    // const email = result.user.email;
-    // You can also get an access token to make requests to Google APIs:
-    // const credential = GoogleAuthProvider.credentialFromResult(result);
-    // const token = credential.accessToken;
-    setUser(result.user);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+
+      // Send token to backend
+      const res = await API.post("/auth/google-login", { idToken });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      alert("Login success!");
+    } catch (error) {
+      console.error("Google login failed:", error);
+      alert("Google login failed. Please try again.");
+    }
   };
 
   const logout = () => {
@@ -40,8 +44,14 @@ export default function AuthProvider({ children }) {
   const checkUser = async () => {
     const token = localStorage.getItem("token");
     if (token) {
-      const res = await API.get("/auth/me");
-      setUser(res.data);
+      try {
+        const res = await API.get("/auth/me");
+        setUser(res.data);
+      } catch (error) {
+        // If the token is invalid, remove it.
+        localStorage.removeItem("token");
+        setUser(null);
+      }
     }
   };
 
