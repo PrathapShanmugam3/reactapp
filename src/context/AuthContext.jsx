@@ -18,6 +18,16 @@ export default function AuthProvider({ children }) {
     setUser(res.data.user);
   };
 
+  const sendOTP = async (phoneNumber) => {
+    await API.post("/auth/send-otp", { phoneNumber });
+  };
+
+  const verifyOTP = async (phoneNumber, otp) => {
+    const res = await API.post("/auth/verify-otp", { phoneNumber, otp });
+    localStorage.setItem("token", res.data.token);
+    setUser(res.data.user);
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
@@ -36,7 +46,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, sendOTP, verifyOTP, logout }}>
       {children}
     </AuthContext.Provider>
   );
