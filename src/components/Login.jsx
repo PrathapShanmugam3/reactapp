@@ -1,9 +1,11 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function Login() {
-  const { login, sendOTP, verifyOTP } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [otpSent, setOtpSent] = useState(false);
@@ -11,6 +13,7 @@ export default function Login() {
   const [otp, setOtp] = useState("");
   const [useOTP, setUseOTP] = useState(false);
   const [validated, setValidated] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const handleLogin = async (e) => {
     const form = e.currentTarget;
@@ -24,21 +27,46 @@ export default function Login() {
     setValidated(true);
   };
 
-  const handleSendOTP = async (e) => {
-    e.preventDefault();
-    await sendOTP(phone);
-    setOtpSent(true);
+  const sendOtp = (phoneNumber) => {
+    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+    signInWithPhoneNumber(auth, phoneNumber, verifier)
+      .then((confirmationResult) => {
+        setConfirmationResult(confirmationResult);
+        setOtpSent(true);
+        alert("OTP sent!");
+      })
+      .catch((error) => {
+        console.error("Error sending OTP:", error);
+        alert(error.message);
+      });
   };
 
-  const handleVerifyOTP = async (e) => {
+  const verifyOtp = (otp) => {
+    confirmationResult.confirm(otp)
+      .then((result) => {
+        alert("OTP verified successfully!");
+        console.log(result.user);
+        navigate("/todo");
+      })
+      .catch((error) => {
+        console.error("OTP verification failed:", error);
+      });
+  };
+
+  const handleSendOTP = (e) => {
     e.preventDefault();
-    await verifyOTP(phone, otp);
-    navigate("/todo");
+    sendOtp(phone);
+  };
+
+  const handleVerifyOTP = (e) => {
+    e.preventDefault();
+    verifyOtp(otp);
   };
 
   if (useOTP) {
     return (
       <section className="vh-100" style={{ backgroundColor: "#eee" }}>
+        <div id="recaptcha-container"></div>
         <div className="container h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
             <div className="col-lg-12 col-xl-11">
